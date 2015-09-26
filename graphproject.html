@@ -1,0 +1,364 @@
+<!doctype html>
+<html>
+<head>
+<title>Grapher</title>
+<h1>Grapher</h1>
+<link rel="stylesheet" type="text/css" href="assignment1.css" />
+<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+
+<script>
+
+$(function(){
+
+
+    // Create canvas and context variables
+
+    var canvas=document.getElementById("canvas");
+    var ctx=canvas.getContext("2d");
+
+	
+	
+
+    // Starting points of graph and margin etc.
+    var xAxis=55;
+    var yAxis=300;
+    var margin=120;
+
+	
+	
+    // An object with the specific value for each day
+    var days={
+        Sunday:0,
+		Monday:0,
+        Tuesday:0,
+        Wednesday:0,
+        Thursday:0,
+        Friday:0,
+        Saturday:0
+    }
+
+    // Each day will have 21 specific values
+    var options=[
+        {val:0,text:"0"},
+		{val:15,text:"5"},
+		{val:25,text:"10"},
+		{val:35,text:"15"},
+		{val:45,text:"20"},
+		{val:55,text:"25"},
+		{val:65,text:"30"},
+		{val:75,text:"35"},
+		{val:85,text:"40"},
+		{val:95,text:"45"},
+		{val:105,text:"50"},
+		{val:115,text:"55"},
+		{val:125,text:"60"},
+		{val:135,text:"65"},
+		{val:145,text:"70"},
+		{val:155,text:"75"},
+		{val:165,text:"80"},
+		{val:175,text:"85"},
+		{val:185,text:"90"},
+        {val:195,text:"95"},
+        {val:205,text:"100"},
+    ];
+	
+
+
+     
+	
+
+    // Create the HTML select elements for each day of the week.
+    for(var dayName in days){
+
+        var select = $('<select>').attr("id",dayName).addClass("myData").appendTo('body');
+        $(options).each(function() {
+         select.append($("<option>").attr('value',this.val).text(this.text));
+        });
+
+    };
+
+    // If value in drop down menu changes, redraw the graph accordingly
+    $(".myData").change(function(e){
+        days[this.id]=$(this).val();
+        draw();
+    });
+
+    // draw the start of the graph
+    draw();
+
+
+	// Draw function to create graph
+    function draw(){
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.beginPath();
+        var i=0;
+        for(var day in days){
+
+            var value=days[day];
+
+            if(day=="Sunday"){
+                ctx.moveTo(xAxis+margin*(i++),yAxis-days[day]);
+            }else{
+                ctx.lineTo(xAxis+margin*(i++),yAxis-days[day]);          
+            }
+
+        }
+        ctx.stroke();
+
+        var i=0;
+        for(var day in days){
+
+            var value=days[day];
+            ctx.beginPath();
+            ctx.arc( xAxis+margin*(i++), yAxis-value,10,0,Math.PI*2);
+            ctx.closePath();
+            ctx.fill();
+
+        }
+		
+
+
+
+	// Draw Y axis	
+	ctx.beginPath();
+	ctx.moveTo(20, 40);
+	ctx.lineTo(20, 300);
+	ctx.stroke();
+		
+		
+	// Draw X axis	
+	ctx.beginPath();
+	ctx.moveTo(800, 300);
+	ctx.lineTo(20, 300);
+	ctx.stroke();
+		
+	
+	
+	// Display chart labels	
+	ctx.font = "10px Arial";
+	ctx.fillText("100",0,100);	
+	
+	ctx.font = "10px Arial";
+	ctx.fillText("75",0,150);
+	
+	ctx.font = "10px Arial";
+	ctx.fillText("50",0,200);
+	
+	ctx.font = "10px Arial";
+	ctx.fillText("25",0,250);
+	
+	ctx.font = "10px Arial";
+	ctx.fillText("0",0,300);
+
+	
+	
+		
+		
+	// Display day of the week text on canvas
+	ctx.font = "15px Arial";
+	ctx.fillText("Monday",25,330);
+	
+	ctx.font = "15px Arial";
+	ctx.fillText("Tuesday",145,330);
+	
+	ctx.font = "15px Arial";
+	ctx.fillText("Wednesday",260,330);
+		
+	ctx.font = "15px Arial";
+	ctx.fillText("Thursday",385,330);
+	
+	ctx.font = "15px Arial";
+	ctx.fillText("Friday",510,330);
+	
+	ctx.font = "15px Arial";
+	ctx.fillText("Saturday",630,330);
+	
+	ctx.font = "15px Arial";
+	ctx.fillText("Sunday",750,330);
+		
+
+    }
+
+}); // end $(function(){});
+
+
+
+// Add title to canvas on click	
+function addTitle2(){
+var title = document.getElementById("titleValue").value;
+
+
+// If nothing is entered, display warning message.
+if(title === ""){
+document.getElementById("error").innerHTML="No entry";
+
+}else {
+// Else print the title on the right hand side of the canvas
+var canvas = document.getElementById("canvas");
+var width = canvas.clientWidth; //canvas width.
+var ctx = canvas.getContext("2d");
+
+ctx.fillStyle = "black";
+ctx.strokeStyle = "black";
+
+ctx.font = "35px Arial";
+ctx.textAlign = 'right'; 		//Position title to the right hand side of canvas
+ctx.fillText(title,width,50);
+ctx.stroke();
+}
+
+
+// Once enter key is pressed, display title also
+document.getElementById("el").onkeypress = checkKey;
+
+function checkKey(e)
+{
+var code = e.keyCode;
+if(code == 13)
+{
+ addTitle2();
+}
+} 
+
+}
+
+
+// Get data URL
+function getDataUrl () {
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var dataURL = canvas.toDataURL();
+save(dataURL);
+}
+
+
+var theImages = new Array();
+
+
+
+
+//Add dataURL to array:
+function save(URL) {
+    theImages.push(URL);
+    var x = JSON.stringify(theImages);
+    localStorage.setItem('images', x);
+
+
+drawImages(x);
+}
+
+// Draw Images Array
+function drawImages(array){
+
+    var array = localStorage.getItem("images");
+    array = JSON.parse(array);
+
+    //If an image is saved, display the saveArea div
+    if (array.length > 0){
+        document.getElementById("saveArea").style.visibility="visible";
+    }
+
+    //Avoid repetition of elements in the div
+    var theDiv = document.getElementById("saveArea");
+    while (theDiv.firstChild) {
+    theDiv.removeChild(theDiv.firstChild);
+    }
+
+
+    for (var x=0; x < array.length; x++){ 
+                    
+					//Create individual image for each value in array
+                    var divimg = document.createElement("div");
+
+                    divimg.style.marginRight="50px";
+                    divimg.className = "saveContainer";
+                    divimg.style.width = 400+"px";
+                    divimg.style.padding = 3+"px";
+                    divimg.style.display="inline-block";    
+                    divimg.style.marginRight="35px";
+					divimg.style.marginRight="10px";
+                    divimg.style.height = 160+"px";
+
+
+                    document.getElementById("saveArea").appendChild(divimg);
+
+					//Create image
+                    var img = document.createElement("img");
+                    img.src = array[x];
+                    img.width = 300;
+                    img.height = 150;
+                    img.setAttribute("id", "theImageId");
+                    img.style.marginRight="10px";
+                    img.className = "saveImg";
+
+
+                    //Add each image to the containing div
+                    divimg.appendChild(img);
+
+
+
+
+                    //Create close button: 
+                    var close = document.createElement("img");
+                    close.src="closelogo.png";
+                    close.width = 50;
+                    close.height = 50;
+                    close.border = 0;
+                    close.style.position="relative";
+                    close.style.bottom=115+"px";
+                    close.style.right=40+"px";
+                    close.className="closeButton";
+
+
+                    var link = document.createElement("canvas");
+                    link.href = "#";
+
+                    link.appendChild(close);
+
+                    link.nameIndex = x;
+
+                    //When CLOSE logo is clicked, do the following
+                    link.onclick = (function (x) {
+                    var imageNum = this.nameIndex;
+                    alert("You clicked to close image "+(imageNum+1));
+                        //Remove the image:
+                        array.splice(x,1);
+
+                        alert("The length of this array is: "+array.length);
+                        //Update localStorage:
+                        localStorage.removeItem('images');
+                        array = JSON.stringify(array);
+
+                        localStorage.setItem('images', array);
+                        drawImages(array);
+                    } );
+
+
+                    //Add the close button the the containing div
+                    divimg.appendChild(link);
+
+    } //End for Loop
+
+} //End drawImages() function;
+
+</script>
+</head>
+<body>
+	<div id="container">
+		<div id="selects"></div>
+		<canvas id="canvas" width="800" height="400" ></canvas>
+		<form action="assignment1.html" id="form" method="post">
+                <table id="table">
+                    <tr>
+						<td class="td"><input class="button" type="button" id="save" name="save" value="Save" style="border-style:none" onclick="drawImages(array);" /></td>
+						<td class="td"><input type="text" id="titleValue" class="field" name="title"/></td>
+						<td class="td"><input class="button" type="button" id ="titleAdd" name="addTitle" value="Add Title" style="border-style:none" onclick="addTitle2();" /></td>
+                    </tr>
+
+                </table>
+        </form>
+		<div id ="imagecontainer"></div>
+	</div>
+</body>
+</html>
